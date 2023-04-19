@@ -87,9 +87,12 @@ def generate_simulation_data(num_simulations=10):
     return simulations
 
 
-num_simulations = 1
-simulation_data = generate_simulation_data(num_simulations)
+num_simulations_test = 30
 
-# Save the data into a JSON file
-with open("/Users/cathytung/CMU/Course/18745 Rapid Prototyping of Computer Systems/Project/simulation_data_1", "w") as outfile:
-    json.dump(simulation_data, outfile, indent=2)
+for index in range(num_simulations_test):
+    simulation_data = generate_simulation_data(1)
+    # Save the data into a JSON file
+    with open("./" + str(index), "w") as outfile:
+        json.dump(simulation_data, outfile, indent=2)
+
+
