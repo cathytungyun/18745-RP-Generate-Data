@@ -95,7 +95,7 @@ def generate_xyz(num_positions):
 def generate_value(num_value, a, b):
     value = random.randint(a, b)
     values = []
-    values.append(num)
+    values.append(value)
     for i in range(num_value):
         value = value + random.randint(-2, 2)
         values.append(value)
@@ -110,7 +110,7 @@ def generate_status(status):
     value = random.randint(0, 1)
     values = []
     for _ in range(count):
-      values.append(num)
+      values.append(value)
     return values + generate_status(status - count)
 
 
