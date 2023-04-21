@@ -2,6 +2,9 @@ import random
 import json
 from datetime import datetime, timedelta
 
+# Set how much simulation file to generate
+num_simulations_test = 5
+# Set how much simulation data to generate in one file
 number_data = 20
 
 simulation_data_template = {
@@ -84,9 +87,9 @@ def generate_xyz(num_positions):
     Z = round(random.uniform(0, 1), 2)
     for i in range(num_positions):
         position = {
-            "X": round ( X + i*0.01 + round(random.uniform(-0.05, 0.05), 2), 2),
-            "Y": round ( Y + i*0.01 + round(random.uniform(-0.05, 0.05), 2), 2),
-            "Z": round ( Z + i*0.01 + round(random.uniform(-0.05, 0.05), 2), 2),
+            "X": round(X + i*0.01 + round(random.uniform(-0.05, 0.05), 2), 2),
+            "Y": round(Y + i*0.01 + round(random.uniform(-0.05, 0.05), 2), 2),
+            "Z": round(Z + i*0.01 + round(random.uniform(-0.05, 0.05), 2), 2),
         }
         positions.append(position)
     return positions
@@ -96,88 +99,89 @@ def generate_value(num_value, a, b):
     value = random.randint(a, b)
     values = []
     values.append(value)
-    for i in range(num_value):
+    for i in range(num_value - 1):
+        # print("generate_value = ", i)
         value = value + random.randint(-2, 2)
         values.append(value)
+        # print ("values = ", values)
     return values
 
 
 def generate_status(status):
-    if status <= 0: 
-      return []
+    if status <= 0:
+        return []
     count = random.randint(2, 5)
     count = min(count, status)
     value = random.randint(0, 1)
     values = []
     for _ in range(count):
-      values.append(value)
+        values.append(value)
     return values + generate_status(status - count)
 
 
+def generate_simulation_data(index):
 
-def generate_simulation_data(num_simulations=10):
-    simulations = []
+    simulation = []
 
-    for i in range(num_simulations):
-        simulation = simulation_data_template.copy()
-        simulation["SimulationId"] = f"sim{i}"
+    simulation = simulation_data_template.copy()
+    simulation["SimulationId"] = f"sim{index}"
+
+    results = generate_gps(number_data)
+    simulation["gps"] = results
+
+    simulation["Speed"]["time"] = []
+    simulation["CarStatus"]["time"] = []
+    simulation["Accel"]["time"] = []
+    simulation["Direction"]["time"] = []
+    simulation["ServoAngle"]["time"] = []
+    simulation["EngineTemperature"]["time"] = []
+    simulation["RPM"]["time"] = []
+    simulation["Position"]["time"] = []
+    simulation["Yaw"]["time"] = []
+    simulation["Pitch"]["time"] = []
+    simulation["Roll"]["time"] = []
+
+    for j in range(number_data):
         start_time = datetime.strptime(
             simulation["StartTime"], "%Y-%m-%dT%H:%M:%S")
         end_time = datetime.strptime(
             simulation["EndTime"], "%Y-%m-%dT%H:%M:%S")
-        
-        results = generate_gps(number_data)
-        simulation["gps"] = results
 
-        for j in range(number_data):
-            time = start_time + \
-                timedelta(seconds=random.randint(
-                    0, int((end_time - start_time).total_seconds())))
-            time_str = time.strftime("%Y-%m-%dT%H:%M:%S")
+        time = start_time + \
+            timedelta(seconds=random.randint(
+                0, int((end_time - start_time).total_seconds())))
+        time_str = time.strftime("%Y-%m-%dT%H:%M:%S")
 
-            simulation["Speed"]["value"] = generate_value(number_data, 0, 100)
-            simulation["Speed"]["time"].append(time_str)
+        simulation["Speed"]["time"].append(time_str)
+        simulation["CarStatus"]["time"].append(time_str)
+        simulation["Accel"]["time"].append(time_str)
+        simulation["Direction"]["time"].append(time_str)
+        simulation["ServoAngle"]["time"].append(time_str)
+        simulation["EngineTemperature"]["time"].append(time_str)
+        simulation["RPM"]["time"].append(time_str)
+        simulation["Position"]["time"].append(time_str)
+        simulation["Yaw"]["time"].append(time_str)
+        simulation["Pitch"]["time"].append(time_str)
+        simulation["Roll"]["time"].append(time_str)
 
-            simulation["CarStatus"]["value"] = generate_status(number_data)
-            simulation["CarStatus"]["time"].append(time_str)
+    simulation["Speed"]["value"] = generate_value(number_data, 0, 100)
+    simulation["CarStatus"]["value"] = generate_status(number_data)
+    simulation["Accel"]["value"] = generate_value(number_data, -10, 10)
+    simulation["Direction"]["value"] = generate_value(number_data, -10, 10)
+    simulation["ServoAngle"]["value"] = generate_value(number_data, -10, 10)
+    simulation["EngineTemperature"]["value"] = generate_value(
+        number_data, -15, 15)
+    simulation["RPM"]["value"] = generate_value(number_data, -10, 10)
+    simulation["Position"]["value"] = generate_xyz(number_data)
+    simulation["Yaw"]["value"] = generate_xyz(number_data)
+    simulation["Pitch"]["value"] = generate_xyz(number_data)
+    simulation["Roll"]["value"] = generate_xyz(number_data)
 
-            simulation["Accel"]["value"] = generate_value(number_data, -10, 10)
-            simulation["Accel"]["time"].append(time_str)
+    return simulation
 
-            simulation["Direction"]["value"] = generate_value(number_data, -10, 10)
-            simulation["Direction"]["time"].append(time_str)
-
-            simulation["ServoAngle"]["value"] = generate_value(number_data, -10, 10)
-            simulation["ServoAngle"]["time"].append(time_str)
-
-            simulation["EngineTemperature"]["value"] = generate_value(number_data, -15, 15)
-            simulation["EngineTemperature"]["time"].append(time_str)
-
-            simulation["RPM"]["value"] = generate_value(number_data, -10, 10)
-            simulation["RPM"]["time"].append(time_str)
-
-            simulation["Position"]["value"] = generate_xyz(number_data)
-            simulation["Position"]["time"].append(time_str)
-
-            simulation["Yaw"]["value"] = generate_xyz(number_data)
-            simulation["Yaw"]["time"].append(time_str)
-
-            simulation["Pitch"]["value"] = generate_xyz(number_data)
-            simulation["Pitch"]["time"].append(time_str)
-
-            simulation["Roll"]["value"] = generate_xyz(number_data)
-            simulation["Roll"]["time"].append(time_str)
-
-        simulations.append(simulation)
-
-    return simulations
-
-
-num_simulations_test = 5
 
 for index in range(num_simulations_test):
-    simulation_data = generate_simulation_data(1)
+    simulation_data = generate_simulation_data(index)
     # Save the data into a JSON file
-    with open("./" + str(index), "w") as outfile:
+    with open("18745-RP-Generate-Data/data/sim" + str(index), "w") as outfile:
         json.dump(simulation_data, outfile, indent=2)
-        
